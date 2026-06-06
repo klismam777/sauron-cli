@@ -12,6 +12,7 @@ program
 program
   .command('init')
   .description('Inicializa o Sauron Memory System no projeto atual')
-  .action(runInit);
+  .option('-y, --yes', 'Pula os prompts interativos e usa os valores padrão (Não-interativo)')
+  .action((options) => runInit(options));
 
 program.parse();
