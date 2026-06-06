@@ -14,14 +14,11 @@ O Sauron resolve isso ejetando pastas estruturadas (`.sauron` e `.agents`) no se
 
 ## Instalação
 
+Para inicializar o Sauron CLI no seu projeto, basta rodar o comando abaixo no terminal da raiz do seu projeto (não é necessário instalar nada globalmente):
+
 ```bash
-# Como o pacote ainda não está publicado publicamente no NPM,
-# você pode usá-lo localmente (após rodar npm link neste repositório):
-
-sauron init
+npx sauron-cli init
 ```
-
-*Brevemente disponível via `npx sauron-cli init`.*
 
 ## Comandos (MVP)
 
