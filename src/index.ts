@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { runInit } from './commands/init.js';
+import { runInitCommand } from './features/init/init.command.js';
 
 const program = new Command();
 
@@ -13,6 +13,6 @@ program
   .command('init')
   .description('Inicializa o Sauron Memory System no projeto atual')
   .option('-y, --yes', 'Pula os prompts interativos e usa os valores padrão (Não-interativo)')
-  .action((options) => runInit(options));
+  .action((options) => runInitCommand(options));
 
 program.parse();
