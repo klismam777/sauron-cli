@@ -29,6 +29,17 @@
     "contentHash": "6f2373af88c7347d556cbf747ca814397105336c3c434b7037d7aaa28163bb16"
   },
   {
+    "type": "file",
+    "name": "Scanner Inteligente e Receitas de Wiki",
+    "slug": "implementacao-scanner-inteligente",
+    "path": "history/implementacao-scanner-inteligente.md",
+    "id": "kb-history-scanner-intel",
+    "domainId": "domain-history",
+    "orgId": "org-sauron-cli",
+    "contentLength": 3712,
+    "contentHash": "a73ef1a09456ad5a03fd3a41438ea8fc4850b8b6703e8b579c899777a073d692"
+  },
+  {
     "type": "folder",
     "name": "Knowledge",
     "slug": "knowledge",
@@ -55,5 +66,16 @@
     "slug": "standards",
     "path": "standards",
     "id": "domain-standards"
+  },
+  {
+    "type": "file",
+    "name": "TypeScript Guidelines",
+    "slug": "typescript-rules",
+    "path": "standards/typescript.rules.md",
+    "id": "kb-standards-typescript",
+    "domainId": "domain-standards",
+    "orgId": "org-sauron-cli",
+    "contentLength": 1182,
+    "contentHash": "a52a45607902b2173261fcbeb18277d91211f8e4a9867762ac9a2477edec1021"
   }
 ]

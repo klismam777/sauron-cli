@@ -6,6 +6,7 @@ import * as p from '@clack/prompts';
 import { InitService } from './init.service.js';
 import { SessionContext, ConflictResolution } from '../../domain/session/session-context.js';
 import { PresentationRouter } from '../../presentation/router.js';
+import { ProjectScanner } from '../../core/scanner/project-scanner.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,26 @@ export async function runInitCommand(options: InitCommandOptions) {
 
   const driver = PresentationRouter.createDriver(session);
 
+  // 2. Instancia o Scanner e executa a varredura neural do projeto
+  const scanner = new ProjectScanner(cwd);
+  
+  let scanSpinner: any = null;
+  if (!session.json) {
+    scanSpinner = p.spinner();
+    scanSpinner.start('O Olho de Sauron está varrendo o repositório em busca da stack tecnológica e dependências...');
+  }
+  
+  const scannedContext = await scanner.scan();
+  
+  // Pausa artificial (Labor Illusion) de 800ms se for interativo para satisfação de UI
+  if (session.interactive) {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+  }
+  
+  if (scanSpinner) {
+    scanSpinner.stop('Mapeamento neural concluído com sucesso. Contexto do repositório foi inferido.');
+  }
+
   // Exibe cabeçalho visual apenas se não for saída estruturada JSON
   if (!session.json) {
     const logo = `
@@ -43,11 +64,19 @@ export async function runInitCommand(options: InitCommandOptions) {
     p.intro(pc.bgRed(pc.white(' Sauron Memory System - Inicialização ')));
   }
 
-  // Valores padrão em modo não-interativo
-  let aiTargets = ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
+  // Valores padrão e inferidos do scanner
+  let aiTargets = scannedContext.detectedIAs;
   let severity = 'Observacional';
   let projectContext = 'Projeto Genérico';
-  let projectStack = 'Node.js, TypeScript';
+
+  const inferredStackString = [
+    scannedContext.primaryLanguage,
+    ...scannedContext.frameworks,
+    ...scannedContext.database,
+    ...scannedContext.styling
+  ].filter(Boolean).join(', ');
+  
+  let projectStack = inferredStackString || 'Node.js, TypeScript';
 
   // Executa onboarding interativo de perguntas se permitido pela sessão
   if (session.interactive) {
@@ -56,34 +85,36 @@ export async function runInitCommand(options: InitCommandOptions) {
         {
           targets: () =>
             p.multiselect({
-              message: 'Qual(is) IA(s) você usará neste projeto?',
+              message: 'Confirmar a(s) IA(s) operativas que consumirão ativamente o contexto estruturado da Wiki:',
               options: [
                 { value: 'Cursor', label: 'Cursor', hint: 'Recomendado' },
                 { value: 'Windsurf', label: 'Windsurf' },
                 { value: 'Aider', label: 'Aider' },
                 { value: 'Antigravity', label: 'Antigravity', hint: 'Agente nativo' },
               ],
+              initialValues: aiTargets,
               required: false,
             }),
           severity: () =>
             p.select({
-              message: 'Qual o nível de severidade das regras da IA?',
+              message: 'Defina a severidade rigorosa de implementação das regras contextuais da IA:',
               options: [
-                { value: 'Observacional', label: 'Observacional (A IA documenta quando julgar necessário)' },
-                { value: 'Estrito', label: 'Estrito (Bloqueia alterações sem documentação explícita)' },
+                { value: 'Observacional', label: 'Observacional (As regras servem apenas de sugestões orgânicas)' },
+                { value: 'Estrito', label: 'Estrito (Enforcement ativo e recusa de lógicas em desacordo)' },
               ],
+              initialValue: severity,
             }),
           context: () =>
             p.text({
-              message: 'Descreva brevemente o contexto do seu projeto:',
+              message: 'Descreva brevemente o contexto sistêmico do projeto (ou ratifique o contexto preditivo):',
               placeholder: 'Ex: App de agendamento de pilates',
-              defaultValue: 'Projeto Genérico',
+              initialValue: projectContext,
             }),
           stack: () =>
             p.text({
-              message: 'Qual a stack tecnológica principal do seu projeto?',
+              message: 'Qual a stack tecnológica mapeada em definitivo para este projeto?',
               placeholder: 'Ex: Next.js 15, Tailwind, Firebase',
-              defaultValue: 'Node.js, TypeScript',
+              initialValue: projectStack,
             }),
         },
         {
@@ -123,6 +154,7 @@ export async function runInitCommand(options: InitCommandOptions) {
         projectStack,
         cwd,
         templatesDir,
+        wikiTemplatesToInject: scannedContext.wikiTemplatesToInject,
       },
       driver
     );

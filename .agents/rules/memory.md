@@ -7,6 +7,21 @@ trigger: always_on
 trigger: always_on
 ---
 
+# SAURON START
+---
+trigger: always_on
+---
+
+# SAURON START
+---
+trigger: always_on
+---
+
+# SAURON START
+---
+trigger: always_on
+---
+
 # Regra de Memória do Projeto (OBRIGATÓRIA)
 
 > Esta regra garante que o Wiki (`.sauron/wiki/`) é a fonte da verdade absoluta do projeto.
@@ -131,5 +146,11 @@ Antes de finalizar qualquer resposta que envolva código, pergunte-se:
 - [ ] Adicionei/alterei uma variável de ambiente? → Wiki precisa do registro.
 
 Se qualquer checkbox for `true` e o wiki não foi atualizado, **a tarefa NÃO está completa**.
+
+# SAURON END
+
+# SAURON END
+
+# SAURON END
 
 # SAURON END

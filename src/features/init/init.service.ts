@@ -6,6 +6,7 @@ import { generateAgentsMarkdown } from './templates.js';
 import { PresentationDriver } from '../../domain/adapters/presentation-driver.js';
 import { RegistryService } from '../../core/registry/registry.service.js';
 import { AdapterFactory } from '../../core/adapters/adapter.factory.js';
+import { WikiBootstrapper } from '../../core/wiki/wiki-bootstrapper.js';
 
 export interface InitOptions {
   aiTargets: string[];
@@ -14,6 +15,7 @@ export interface InitOptions {
   projectStack: string;
   cwd: string;
   templatesDir: string;
+  wikiTemplatesToInject: string[];
 }
 
 export class InitService {
@@ -65,7 +67,10 @@ export class InitService {
             modifiedFiles.push(relPath);
           }
 
-          manifest.files[relPath] = generateHash(content);
+          const isMutable = relPath.startsWith('.sauron/wiki/') || relPath === '.agents/rules/memory.md';
+          if (!isMutable) {
+            manifest.files[relPath] = generateHash(content);
+          }
         }
       }
     };
@@ -124,7 +129,15 @@ export class InitService {
       }
     }
 
-    // 5. Cadastra o workspace no Global Registry centralizado da máquina
+    // 5. Executa a injeção condicional de receitas na wiki do projeto
+    const bootstrapper = new WikiBootstrapper(cwd);
+    const injectedWikiFiles = await bootstrapper.bootstrapFromTemplates(
+      templatesDir,
+      options.wikiTemplatesToInject
+    );
+    modifiedFiles.push(...injectedWikiFiles);
+
+    // 6. Cadastra o workspace no Global Registry centralizado da máquina
     const projectName = path.basename(cwd) || 'Unnamed Project';
     await this.registryService.registerWorkspace(
       projectName,
