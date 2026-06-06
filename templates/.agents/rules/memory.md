@@ -1,0 +1,128 @@
+---
+trigger: always_on
+---
+
+# Regra de Memória do Projeto (OBRIGATÓRIA)
+
+> Esta regra garante que o Wiki (`.sauron/wiki/`) é a fonte da verdade absoluta do projeto.
+> Violá-la significa perder informação crítica entre sessões.
+
+---
+
+## 1. LEITURA — Antes de Agir
+
+Sempre que algo for perguntado ou uma tarefa for iniciada:
+
+1. Leia `.sauron/wiki/summary.json` (o arquivo de roteamento base) primeiro. Este arquivo segue um **padrão rígido** e é a única fonte confiável de metadados.
+2. Navegue pelas sub-páginas relevantes usando as informações de nome original e tipo (file/folder) contidas no JSON.
+3. Só recorra à exploração do sistema de arquivos se a informação **não existir** no sumário (e atualize o sumário se necessário seguindo o schema da Seção 6).
+
+---
+
+## 2. PROTOCOLO DE SINCRONIZAÇÃO (NUVEM)
+
+O fluxo de documentação segue um ciclo de três etapas para garantir a persistência:
+
+1. **PULL (Manual)**: Antes de iniciar a tarefa, o usuário executa `sauron pull` para atualizar os documentos locais com a versão mais recente da nuvem.
+2. **EXECUÇÃO (IA)**: Durante o desenvolvimento, o Agente atualiza/cria os documentos em `.sauron/wiki/` em tempo real.
+3. **PUSH (Manual)**: Ao finalizar a tarefa, o usuário executa `sauron push` para enviar as atualizações locais para a nuvem.
+
+> [!IMPORTANT]
+> O Agente deve assumir que o diretório `.sauron/wiki/` é o destino final e atualizá-lo diligentemente, permitindo que o usuário sincronize as mudanças posteriormente.
+
+---
+
+## 3. ESCRITA — Depois de Entregar (CRÍTICO)
+
+**Após QUALQUER entrega funcional, a wiki DEVE ser atualizada NO MESEMO TURNO de resposta.**
+
+### Gatilhos Obrigatórios de Escrita
+
+| Evento | Ação no Wiki |
+|--------|-------------|
+| **Integração de API externa** | Criar/atualizar página documentando URL, autenticação, payload, resposta e tratamento de erros. |
+| **Nova página/rota criada** | Registrar em `summary.json` (seguindo o **padrão rígido** da Seção 6) + criar arquivo `.md`. |
+| **Fluxo de autenticação alterado** | Atualizar a página de auth com o fluxo completo, incluindo cookies, tokens e middleware. |
+| **Novo componente de UI funcional** | Registrar na página do módulo correspondente com props, comportamento e dependências. |
+| **Decisão arquitetural tomada** | Documentar usando o formato "Decisão Arquitetural" (Problema → Opções → Escolha → Justificativa). |
+| **Variável de ambiente adicionada/alterada** | Registrar na página de infraestrutura com nome, propósito e exemplo. |
+| **Schema de banco alterado** | Atualizar `module-data-schema.md` com a mudança. |
+| **Bug crítico resolvido** | Registrar causa raiz e solução na página do módulo afetado. |
+
+### Regra de Ouro
+
+```
+❌ ERRADO: Entregar código → Responder ao usuário → Esquecer o wiki
+✅ CORRETO: Entregar código → Atualizar wiki → Responder ao usuário
+```
+
+A atualização do wiki é **parte da entrega**, não um passo opcional posterior.
+
+---
+
+## 4. FORMATO — O que Escrever
+
+Cada registro deve conter no mínimo:
+- **O que foi feito** (descrição objetiva)
+- **Por que foi feito** (contexto e motivação)
+- **Como funciona** (detalhes técnicos: endpoints, payloads, fluxos)
+- **Arquivos afetados** (lista de caminhos)
+- **Data** (timestamp da alteração)
+
+---
+
+## 6. ESTRUTURA RÍGIDA DO SUMMARY.JSON
+
+O arquivo `.sauron/wiki/summary.json` é o mapa de metadados que vincula os arquivos locais ao servidor. O CLI exige um padrão estrito para o comando `sauron push` funcionar corretamente.
+
+### Regras de Ouro do Summary
+- **NUNCA altere IDs**: Os campos `id`, `domainId` e `orgId` são cruciais. Removê-los ou alterá-los causará a criação de documentos duplicados no servidor em vez de atualizar os existentes.
+- **Mantenha o Mapeamento**: O campo `name` deve ser o título original (com espaços e acentos). O `slug` e o `path` devem ser gerados seguindo a lógica de normalização (lowercase, sem acentos, espaços viram hífens).
+- **Otimização**: Os campos `contentLength` e `contentHash` (SHA256) permitem que o CLI pule arquivos não alterados. Se você editar um arquivo manualmente, o `push` detectará a mudança mesmo se você não atualizar o hash (ele recalcula o hash local), mas o `summary.json` deve ser mantido atualizado para consistência.
+- **Acoplamento Físico**: O Sauron CLI mapeia domínios do banco de dados na nuvem com base na subpasta física no disco local (usando o diretório pai do arquivo). Arquivos na raiz do wiki sempre pertencerão ao domínio genérico `.`. É obrigatória a organização física em pastas para manter a separação lógica na nuvem.
+- **Ignorar summary.md**: O arquivo `summary.md` é uma página especial/reservada. Nunca adicione o `summary.md` como uma entrada do tipo `"file"` dentro do `summary.json`, caso contrário o CLI tentará excluí-lo e falhará com erro 422.
+
+### Schema Obrigatório
+
+O JSON deve ser um **array de objetos** seguindo rigorosamente estes formatos:
+
+#### Entrada de Pasta (Domínio)
+```json
+{
+  "type": "folder",
+  "name": "Título Original",
+  "slug": "titulo-original",
+  "path": "titulo-original",
+  "id": "id-do-dominio"
+}
+```
+
+#### Entrada de Arquivo (Documento)
+```json
+{
+  "type": "file",
+  "name": "Título Original do Documento",
+  "slug": "titulo-original-do-documento",
+  "path": "slug-do-dominio/titulo-original-do-documento.md",
+  "id": "id-do-kb",
+  "domainId": "id-do-dominio-pai",
+  "orgId": "id-da-organizacao",
+  "contentLength": 1234,
+  "contentHash": "sha256-checksum"
+}
+```
+
+---
+
+## 7. VALIDAÇÃO — Checklist Mental
+
+Antes de finalizar qualquer resposta que envolva código, pergunte-se:
+
+- [ ] Criei ou modifiquei um arquivo? → Wiki precisa saber.
+- [ ] Conectei a uma API externa? → Wiki precisa documentar.
+- [ ] Alterei fluxo de login/sessão? → Wiki MUST refletir.
+- [ ] Criei uma nova página/rota? → `summary.json` precisa do registro de roteamento seguindo o **padrão rígido**.
+- [ ] Tomei uma decisão técnica (lib X vs Y, abordagem A vs B)? → Wiki precisa da justificativa.
+- [ ] Adicionei/alterei uma variável de ambiente? → Wiki precisa do registro.
+
+Se qualquer checkbox for `true` e o wiki não foi atualizado, **a tarefa NÃO está completa**.

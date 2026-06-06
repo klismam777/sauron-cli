@@ -1,0 +1,37 @@
+[
+  {
+    "type": "folder",
+    "name": "History",
+    "slug": "history",
+    "path": "history",
+    "id": "domain-history"
+  },
+  {
+    "type": "folder",
+    "name": "Knowledge",
+    "slug": "knowledge",
+    "path": "knowledge",
+    "id": "domain-knowledge"
+  },
+  {
+    "type": "folder",
+    "name": "Manuals",
+    "slug": "manuals",
+    "path": "manuals",
+    "id": "domain-manuals"
+  },
+  {
+    "type": "folder",
+    "name": "Modules",
+    "slug": "modules",
+    "path": "modules",
+    "id": "domain-modules"
+  },
+  {
+    "type": "folder",
+    "name": "Standards",
+    "slug": "standards",
+    "path": "standards",
+    "id": "domain-standards"
+  }
+]
