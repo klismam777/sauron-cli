@@ -25,12 +25,12 @@ npx sauron-cli init
 ### `sauron init`
 
 Inicializa o Sauron Memory System no projeto atual.
-Ele copia passivamente toda a estrutura base (templates de instrução e JSON de mapa mental) para o diretório raiz do usuário.
+Ele executa um onboarding interativo que coleta as tecnologias do seu projeto para gerar um manifesto dinâmico (`AGENTS.md`). Em seguida, copia toda a estrutura base (`.sauron` e `.agents`) para o diretório raiz.
 
 ```bash
 sauron init
 ```
-*Nota: Este comando é seguro e bloqueará automaticamente caso os diretórios `.sauron` ou `.agents` já existam no repositório, evitando a corrupção do seu histórico atual.*
+*Nota: Graças ao nosso **Merge Engine** nativo, o comando é seguro para ser rodado várias vezes. Se houver alguma edição manual sua ou da sua IA nas regras, o Sauron detectará o conflito e abrirá uma interface interativa permitindo auditar o Diff e decidir se quer sobrescrever ou preservar suas regras.*
 
 ## Estrutura Injetada
 
@@ -38,10 +38,12 @@ Ao rodar o comando `init`, a CLI injeta a seguinte topologia no projeto:
 
 ```text
 /
+├── AGENTS.md
 ├── .agents/
 │   ├── rules/
 │   └── skills/
 └── .sauron/
+    ├── .manifest.json
     └── wiki/
         ├── summary.json
         ├── history/
