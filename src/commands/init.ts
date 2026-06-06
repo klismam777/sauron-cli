@@ -12,14 +12,14 @@ const __dirname = path.dirname(__filename);
 export async function runInit(options: { yes?: boolean }) {
   const cwd = process.cwd();
   const logo = `
-   ____    _    _   _ ____   ___  _   _ 
-  / ___|  / \\  | | | |  _ \\ / _ \\| \\ | |
-  \\___ \\ / _ \\ | | | | |_) | | | |  \\| |
-   ___) / ___ \\| |_| |  _ <| |_| | |\\  |
-  |____/_/   \\_\\\\___/|_| \\_\\\\___/|_| \\_|
+\x1b[38;2;255;106;0m ██████  █████  ██    ██ ██████  ██████  ███    ██\x1b[0m
+\x1b[38;2;255;179;0m██      ██   ██ ██    ██ ██   ██ ██   ██ ████   ██\x1b[0m
+\x1b[38;2;255;215;0m╚█████╗ ███████ ██    ██ ██████  ██   ██ ██ ██  ██\x1b[0m
+\x1b[38;2;255;140;0m     ██ ██   ██ ██    ██ ██   ██ ██   ██ ██  ██ ██\x1b[0m
+\x1b[38;2;204;51;0m██████  ██   ██  ██████  ██   ██ ██████  ██   ████\x1b[0m
 `;
 
-  console.log(pc.red(pc.bold(logo)));
+  console.log(pc.bold(logo));
   console.log(pc.dim('  CLI de Idempotência e Memória para IAs\n'));
 
   p.intro(pc.bgRed(pc.white(' 👁️ Sauron Memory System - Inicialização ')));
