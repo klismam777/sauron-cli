@@ -1,2 +1,6 @@
 src/
 tsconfig.json
+.genesis/
+Taevo-PRD-1780772261443.md
+sauron_cli_implementation_plan.md
+AGENTS.md
