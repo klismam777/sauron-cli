@@ -22,7 +22,7 @@ export async function runInit(options: { yes?: boolean }) {
   console.log(pc.bold(logo));
   console.log(pc.dim('  CLI de Idempotência e Memória para IAs\n'));
 
-  p.intro(pc.bgRed(pc.white(' 👁️ Sauron Memory System - Inicialização ')));
+  p.intro(pc.bgRed(pc.white(' Sauron Memory System - Inicialização ')));
   let aiTargets = ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
   let severity = 'Observacional';
   let projectContext = 'Projeto Genérico';
@@ -166,7 +166,7 @@ Todos os agentes operando neste repositório estão estritamente obrigados a doc
   s.stop('Injeção finalizada.');
 
   p.outro(
-    pc.green(pc.bold('Sauron Memory System instalado com sucesso! 👁️\n\n')) +
+    pc.green(pc.bold('Sauron Memory System instalado com sucesso!\n\n')) +
     pc.white('O Cérebro da IA foi injetado e protegido pelo motor de integridade.\n') +
     pc.cyan('Ações Recomendadas:\n') +
     pc.dim('Copie o comando abaixo e envie para a sua IA testar a nova arquitetura:\n') +
