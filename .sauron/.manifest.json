@@ -1,6 +1,9 @@
 {
   "version": "1.0.0",
   "files": {
-    "AGENTS.md": "16636ca1f503c84b91daa406a3cfc581563580f48443e6c082e32c7ea0037920"
+    "AGENTS.md": "16636ca1f503c84b91daa406a3cfc581563580f48443e6c082e32c7ea0037920",
+    ".sauron/wiki/summary.json": "9e3a6a1ff6199a539d86ee69ff530200c54dbb31151c456334b6a8b164ed53ba",
+    ".agents/rules/memory.md": "ced44c29c816b1db4d13af92fa8fbc1989e9ae1ab530674c088a55ecbe945c61",
+    ".agents/skills/wiki/SKILL.md": "8ce35d3ee8294f0883bb54e81d12948f6a4adc9fbde87c92cec91e58e9dd9a73"
   }
 }

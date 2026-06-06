@@ -82,8 +82,11 @@ export async function runInitCommand(options: { yes?: boolean }) {
   const s = p.spinner();
   s.start('Injetando o Cérebro da IA no repositório...');
 
-  const packageRoot = path.join(__dirname, '..', '..', '..'); // dist/features/init -> raiz
-  const templatesDir = path.join(packageRoot, 'templates');
+  // Resolve o caminho de templates de forma resiliente em desenvolvimento e em build (tsup)
+  let templatesDir = path.join(__dirname, '..', 'templates');
+  if (!fs.existsSync(templatesDir)) {
+    templatesDir = path.join(__dirname, '..', '..', '..', 'templates');
+  }
 
   const initService = new InitService();
 
