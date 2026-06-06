@@ -1,5 +1,6 @@
 ---
-trigger: always_on
+description: Diretrizes de Memória e Write Obligation para evitar Amnésia de Contexto
+globs: *
 ---
 
 # SAURON START

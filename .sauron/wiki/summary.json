@@ -18,6 +18,17 @@
     "contentHash": "e5f4da0442923d13b2de447dcaff137de34f8b6f533dd3b95d5423b316a79313"
   },
   {
+    "type": "file",
+    "name": "Reestruturação Arquitetural do Core",
+    "slug": "reestruturacao-arquitetural-do-core",
+    "path": "history/reestruturacao-arquitetural-core.md",
+    "id": "kb-history-rearchitecture-core",
+    "domainId": "domain-history",
+    "orgId": "org-sauron-cli",
+    "contentLength": 2908,
+    "contentHash": "6f2373af88c7347d556cbf747ca814397105336c3c434b7037d7aaa28163bb16"
+  },
+  {
     "type": "folder",
     "name": "Knowledge",
     "slug": "knowledge",

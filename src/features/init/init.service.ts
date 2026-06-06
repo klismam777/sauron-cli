@@ -1,8 +1,11 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { getManifest, saveManifest, generateHash, Manifest } from '../../core/manifest.service.js';
+import { getManifest, saveManifest, generateHash } from '../../core/manifest.service.js';
 import { checkConflict } from '../../core/merge.service.js';
 import { generateAgentsMarkdown } from './templates.js';
+import { PresentationDriver } from '../../domain/adapters/presentation-driver.js';
+import { RegistryService } from '../../core/registry/registry.service.js';
+import { AdapterFactory } from '../../core/adapters/adapter.factory.js';
 
 export interface InitOptions {
   aiTargets: string[];
@@ -14,14 +17,18 @@ export interface InitOptions {
 }
 
 export class InitService {
+  private registryService = new RegistryService();
+
   async execute(
     options: InitOptions,
-    onConflict: (filePath: string, localContent: string, newContent: string) => Promise<'ours' | 'theirs'>
-  ) {
+    driver: PresentationDriver
+  ): Promise<string[]> {
     const { cwd, templatesDir } = options;
     const manifest = (await getManifest(cwd)) || { version: '1.0.0', files: {} };
+    const modifiedFiles: string[] = [];
 
-    async function processDirectory(source: string, target: string) {
+    // Função interna para copiar diretórios recursivamente utilizando o PresentationDriver
+    const processDirectory = async (source: string, target: string) => {
       if (!(await fs.pathExists(source))) return;
 
       const files = await fs.readdir(source);
@@ -44,7 +51,7 @@ export class InitService {
             const hasConflict = checkConflict(localContent, content, manifest.files[relPath]);
             
             if (hasConflict) {
-              const decision = await onConflict(relPath, localContent, content);
+              const decision = await driver.resolveConflict(relPath, localContent, content);
               if (decision === 'ours') {
                 shouldWrite = false;
               }
@@ -55,16 +62,19 @@ export class InitService {
 
           if (shouldWrite) {
             await fs.writeFile(targetPath, content, 'utf8');
+            modifiedFiles.push(relPath);
           }
 
           manifest.files[relPath] = generateHash(content);
         }
       }
-    }
+    };
 
+    // 1. Processa diretórios bases ocultos de templates
     await processDirectory(path.join(templatesDir, '.sauron'), path.join(cwd, '.sauron'));
     await processDirectory(path.join(templatesDir, '.agents'), path.join(cwd, '.agents'));
 
+    // 2. Processa o arquivo global AGENTS.md
     const agentsMdPath = path.join(cwd, 'AGENTS.md');
     const agentsMdContent = generateAgentsMarkdown(
       options.aiTargets,
@@ -79,7 +89,7 @@ export class InitService {
       const hasConflict = checkConflict(localAgents, agentsMdContent, manifest.files['AGENTS.md']);
       
       if (hasConflict) {
-        const decision = await onConflict('AGENTS.md', localAgents, agentsMdContent);
+        const decision = await driver.resolveConflict('AGENTS.md', localAgents, agentsMdContent);
         if (decision === 'ours') {
           shouldWriteAgents = false;
         }
@@ -88,9 +98,41 @@ export class InitService {
 
     if (shouldWriteAgents) {
       await fs.writeFile(agentsMdPath, agentsMdContent, 'utf8');
+      modifiedFiles.push('AGENTS.md');
     }
     manifest.files['AGENTS.md'] = generateHash(agentsMdContent);
 
+    // 3. Salva o manifesto de integridade
     await saveManifest(cwd, manifest);
+    modifiedFiles.push('.sauron/.manifest.json');
+
+    // 4. Executa adaptadores de agentes específicos para as IAs alvo selecionadas
+    const memoryFilePath = path.join(cwd, '.agents', 'rules', 'memory.md');
+    let memoryRulesContent = '';
+    if (await fs.pathExists(memoryFilePath)) {
+      memoryRulesContent = await fs.readFile(memoryFilePath, 'utf8');
+    } else {
+      // Se por algum motivo o arquivo de templates base não existir, tenta o template estático
+      memoryRulesContent = agentsMdContent;
+    }
+
+    for (const target of options.aiTargets) {
+      const adapter = AdapterFactory.getAdapter(target);
+      if (adapter) {
+        const paths = await adapter.inject(cwd, memoryRulesContent);
+        modifiedFiles.push(...paths);
+      }
+    }
+
+    // 5. Cadastra o workspace no Global Registry centralizado da máquina
+    const projectName = path.basename(cwd) || 'Unnamed Project';
+    await this.registryService.registerWorkspace(
+      projectName,
+      cwd,
+      options.aiTargets,
+      options.severity
+    );
+
+    return modifiedFiles;
   }
 }

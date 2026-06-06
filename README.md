@@ -20,17 +20,49 @@ Para inicializar o Sauron CLI no seu projeto, basta rodar o comando abaixo no te
 npx sauron-cli init
 ```
 
-## Comandos (MVP)
+## Comandos
 
 ### `sauron init`
 
 Inicializa o Sauron Memory System no projeto atual.
-Ele executa um onboarding interativo que coleta as tecnologias do seu projeto para gerar um manifesto dinâmico (`AGENTS.md`). Em seguida, copia toda a estrutura base (`.sauron` e `.agents`) para o diretório raiz.
+Ele executa um onboarding interativo que coleta as tecnologias do seu projeto para gerar um manifesto dinâmico (`AGENTS.md`) e injeta as regras específicas de acordo com os adaptadores de IAs configurados (Cursor AI `.mdc`, Windsurf Cascade `.windsurfrules`, Aider `.aider.instructions.md`, Antigravity).
 
 ```bash
+# Inicialização interativa padrão
 sauron init
+
+# Inicialização silenciosa/não-interativa programática
+sauron init -y --conflict ours
+
+# Saída estruturada em formato JSON
+sauron init -y --json
 ```
-*Nota: Graças ao nosso **Merge Engine** nativo, o comando é seguro para ser rodado várias vezes. Se houver alguma edição manual sua ou da sua IA nas regras, o Sauron detectará o conflito e abrirá uma interface interativa permitindo auditar o Diff e decidir se quer sobrescrever ou preservar suas regras.*
+*Nota: Graças ao nosso **Merge Engine** nativo, o comando é seguro para ser rodado várias vezes. Em ambientes programáticos (como scripts ou bots), use `--conflict ours|theirs` para tomada de decisão automática de merges.*
+
+### `sauron doctor`
+
+Executa uma auditoria completa de integridade e conformidade estrutural e criptográfica (SHA-256) das regras, sumário da wiki e adaptadores de IAs configurados no projeto.
+
+```bash
+# Diagnóstico visual interativo
+sauron doctor
+
+# Diagnóstico com saída estruturada JSON (útil em pipelines de CI/CD)
+sauron doctor --json
+```
+
+### `sauron uninstall`
+
+Desvincula as preferências do Sauron no repositório local e central. Realiza a higiene cirúrgica das IDEs (removendo vinculações e regras específicas).
+*Nota: A wiki de documentação em `.sauron/wiki/` é preservada por padrão (degradação graciosa). Para removê-la fisicamente por completo, utilize a flag `--purge`.*
+
+```bash
+# Desinstalação com preservação da wiki
+sauron uninstall
+
+# Desinstalação profunda com purga física completa
+sauron uninstall -y --purge
+```
 
 ## Estrutura Injetada
 
@@ -76,7 +108,6 @@ npm link
 ```
 
 ## Próximos Passos no Roadmap
-- `sauron check`: Comando de validação rigorosa para auditar a integridade da documentação deixada pela IA e bater o Markdown com o `summary.json`.
 - `sauron map`: Visão em formato de árvore hierárquica direto no terminal do seu "Cérebro de IA".
 
 ---
