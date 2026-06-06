@@ -11,9 +11,18 @@ const __dirname = path.dirname(__filename);
 
 export async function runInit(options: { yes?: boolean }) {
   const cwd = process.cwd();
-  
-  p.intro(pc.bgBlue(pc.white(' 👁️ Sauron Memory System - Inicialização ')));
+  const logo = `
+   ____    _    _   _ ____   ___  _   _ 
+  / ___|  / \\  | | | |  _ \\ / _ \\| \\ | |
+  \\___ \\ / _ \\ | | | | |_) | | | |  \\| |
+   ___) / ___ \\| |_| |  _ <| |_| | |\\  |
+  |____/_/   \\_\\\\___/|_| \\_\\\\___/|_| \\_|
+`;
 
+  console.log(pc.red(pc.bold(logo)));
+  console.log(pc.dim('  CLI de Idempotência e Memória para IAs\n'));
+
+  p.intro(pc.bgRed(pc.white(' 👁️ Sauron Memory System - Inicialização ')));
   let aiTargets = ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
   let severity = 'Observacional';
   let projectContext = 'Projeto Genérico';
