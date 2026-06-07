@@ -2,111 +2,111 @@
 trigger: always_on
 ---
 
-# Regra de Memória do Projeto (OBRIGATÓRIA)
+# Project Memory Rule (MANDATORY)
 
-> Esta regra garante que o Wiki (`.sauron/wiki/`) é a fonte da verdade absoluta do projeto.
-> Violá-la significa perder informação crítica entre sessões.
-
----
-
-## 1. LEITURA — Antes de Agir
-
-Sempre que algo for perguntado ou uma tarefa for iniciada:
-
-1. Leia `.sauron/wiki/summary.json` (o arquivo de roteamento base) primeiro. Este arquivo segue um **padrão rígido** e é a única fonte confiável de metadados.
-2. Navegue pelas sub-páginas relevantes usando as informações de nome original e tipo (file/folder) contidas no JSON.
-3. Só recorra à exploração do sistema de arquivos se a informação **não existir** no sumário (e atualize o sumário se necessário seguindo o schema da Seção 6).
+> This rule ensures that the Wiki (`.sauron/wiki/`) is the absolute single source of truth for the project.
+> Violating it means losing critical context between sessions.
 
 ---
 
-## 2. PROTOCOLO DE SINCRONIZAÇÃO (NUVEM)
+## 1. READ — Before Taking Action
 
-O fluxo de documentação segue um ciclo de três etapas para garantir a persistência:
+Whenever something is asked or a task is initiated:
 
-1. **PULL (Manual)**: Antes de iniciar a tarefa, o usuário executa `sauron pull` para atualizar os documentos locais com a versão mais recente da nuvem.
-2. **EXECUÇÃO (IA)**: Durante o desenvolvimento, o Agente atualiza/cria os documentos em `.sauron/wiki/` em tempo real.
-3. **PUSH (Manual)**: Ao finalizar a tarefa, o usuário executa `sauron push` para enviar as atualizações locais para a nuvem.
+1. Read `.sauron/wiki/summary.json` (the base routing file) first. This file follows a **strict pattern** and is the only reliable source of metadata.
+2. Navigate through the relevant sub-pages using the original name and type (file/folder) information contained in the JSON.
+3. Only resort to exploring the file system if the information **does not exist** in the summary (and update the summary if necessary following the schema in Section 6).
+
+---
+
+## 2. SYNCHRONIZATION PROTOCOL (CLOUD)
+
+The documentation flow follows a three-step cycle to ensure persistence:
+
+1. **PULL (Manual)**: Before starting a task, the user executes `sauron pull` to update local documents with the latest cloud version.
+2. **EXECUTION (AI)**: During development, the Agent updates/creates documents in `.sauron/wiki/` in real-time.
+3. **PUSH (Manual)**: Upon completing the task, the user executes `sauron push` to send local updates to the cloud.
 
 > [!IMPORTANT]
-> O Agente deve assumir que o diretório `.sauron/wiki/` é o destino final e atualizá-lo diligentemente, permitindo que o usuário sincronize as mudanças posteriormente.
+> The Agent MUST assume that the `.sauron/wiki/` directory is the final destination and update it diligently, allowing the user to synchronize changes later.
 
 ---
 
-## 3. ESCRITA — Depois de Entregar (CRÍTICO)
+## 3. WRITE — After Delivering (CRITICAL)
 
-**Após QUALQUER entrega funcional, a wiki DEVE ser atualizada NO MESEMO TURNO de resposta.**
+**After ANY functional delivery, the wiki MUST be updated in the SAME response turn.**
 
-### Gatilhos Obrigatórios de Escrita
+### Mandatory Write Triggers
 
-| Evento | Ação no Wiki |
+| Event | Wiki Action |
 |--------|-------------|
-| **Integração de API externa** | Criar/atualizar página documentando URL, autenticação, payload, resposta e tratamento de erros. |
-| **Nova página/rota criada** | Registrar em `summary.json` (seguindo o **padrão rígido** da Seção 6) + criar arquivo `.md`. |
-| **Fluxo de autenticação alterado** | Atualizar a página de auth com o fluxo completo, incluindo cookies, tokens e middleware. |
-| **Novo componente de UI funcional** | Registrar na página do módulo correspondente com props, comportamento e dependências. |
-| **Decisão arquitetural tomada** | Documentar usando o formato "Decisão Arquitetural" (Problema → Opções → Escolha → Justificativa). |
-| **Variável de ambiente adicionada/alterada** | Registrar na página de infraestrutura com nome, propósito e exemplo. |
-| **Schema de banco alterado** | Atualizar `module-data-schema.md` com a mudança. |
-| **Bug crítico resolvido** | Registrar causa raiz e solução na página do módulo afetado. |
+| **External API integration** | Create/update page documenting URL, authentication, payload, response, and error handling. |
+| **New page/route created** | Register in `summary.json` (following the **strict pattern** in Section 6) + create `.md` file. |
+| **Authentication flow changed** | Update the auth page with the full flow, including cookies, tokens, and middleware. |
+| **New functional UI component** | Register in the corresponding module page with props, behavior, and dependencies. |
+| **Architectural decision made** | Document using the "Architectural Decision" format (Problem → Options → Choice → Justification). |
+| **Environment variable added/changed** | Register in the infrastructure page with name, purpose, and example. |
+| **Database schema changed** | Update `module-data-schema.md` with the change. |
+| **Critical bug resolved** | Register root cause and solution in the affected module page. |
 
-### Regra de Ouro
+### Golden Rule
 
 ```
-❌ ERRADO: Entregar código → Responder ao usuário → Esquecer o wiki
-✅ CORRETO: Entregar código → Atualizar wiki → Responder ao usuário
+❌ WRONG: Deliver code → Respond to user → Forget the wiki
+✅ CORRECT: Deliver code → Update wiki → Respond to user
 ```
 
-A atualização do wiki é **parte da entrega**, não um passo opcional posterior.
+Updating the wiki is **part of the delivery**, not an optional subsequent step.
 
 ---
 
-## 4. FORMATO — O que Escrever
+## 4. FORMAT — What to Write
 
-Cada registro deve conter no mínimo:
-- **O que foi feito** (descrição objetiva)
-- **Por que foi feito** (contexto e motivação)
-- **Como funciona** (detalhes técnicos: endpoints, payloads, fluxos)
-- **Arquivos afetados** (lista de caminhos)
-- **Data** (timestamp da alteração)
+Each record MUST contain at least:
+- **What was done** (objective description)
+- **Why it was done** (context and motivation)
+- **How it works** (technical details: endpoints, payloads, flows)
+- **Files affected** (list of paths)
+- **Date** (timestamp of the change)
 
 ---
 
-## 6. ESTRUTURA RÍGIDA DO SUMMARY.JSON
+## 6. STRICT STRUCTURE OF SUMMARY.JSON
 
-O arquivo `.sauron/wiki/summary.json` é o mapa de metadados que vincula os arquivos locais ao servidor. O CLI exige um padrão estrito para o comando `sauron push` funcionar corretamente.
+The `.sauron/wiki/summary.json` file is the metadata map that links local files to the server. The CLI requires a strict pattern for the `sauron push` command to work correctly.
 
-### Regras de Ouro do Summary
-- **NUNCA altere IDs**: Os campos `id`, `domainId` e `orgId` são cruciais. Removê-los ou alterá-los causará a criação de documentos duplicados no servidor em vez de atualizar os existentes.
-- **Mantenha o Mapeamento**: O campo `name` deve ser o título original (com espaços e acentos). O `slug` e o `path` devem ser gerados seguindo a lógica de normalização (lowercase, sem acentos, espaços viram hífens).
-- **Otimização**: Os campos `contentLength` e `contentHash` (SHA256) permitem que o CLI pule arquivos não alterados. Se você editar um arquivo manualmente, o `push` detectará a mudança mesmo se você não atualizar o hash (ele recalcula o hash local), mas o `summary.json` deve ser mantido atualizado para consistência.
-- **Acoplamento Físico**: O Sauron CLI mapeia domínios do banco de dados na nuvem com base na subpasta física no disco local (usando o diretório pai do arquivo). Arquivos na raiz do wiki sempre pertencerão ao domínio genérico `.`. É obrigatória a organização física em pastas para manter a separação lógica na nuvem.
-- **Ignorar summary.md**: O arquivo `summary.md` é uma página especial/reservada. Nunca adicione o `summary.md` como uma entrada do tipo `"file"` dentro do `summary.json`, caso contrário o CLI tentará excluí-lo e falhará com erro 422.
+### Summary Golden Rules
+- **NEVER alter IDs**: The fields `id`, `domainId`, and `orgId` are crucial. Removing or changing them will cause duplicate documents to be created on the server instead of updating existing ones.
+- **Maintain Mapping**: The `name` field must be the original title (with spaces and accents). The `slug` and `path` must be generated following normalization logic (lowercase, no accents, spaces become hyphens).
+- **Optimization**: The `contentLength` and `contentHash` (SHA256) fields allow the CLI to skip unchanged files. If you manually edit a file, `push` will detect the change even if you don't update the hash (it recalculates the local hash), but `summary.json` should be kept updated for consistency.
+- **Physical Coupling**: Sauron CLI maps database domains in the cloud based on the local physical subfolder (using the file's parent directory). Files in the wiki root will always belong to the generic domain `.`. Physical organization in folders is mandatory to maintain logical separation in the cloud.
+- **Ignore summary.md**: The `summary.md` file is a special/reserved page. Never add `summary.md` as a `"file"` entry inside `summary.json`, otherwise the CLI will attempt to delete it and fail with a 422 error.
 
-### Schema Obrigatório
+### Mandatory Schema
 
-O JSON deve ser um **array de objetos** seguindo rigorosamente estes formatos:
+The JSON MUST be an **array of objects** strictly following these formats:
 
-#### Entrada de Pasta (Domínio)
+#### Folder Entry (Domain)
 ```json
 {
   "type": "folder",
-  "name": "Título Original",
-  "slug": "titulo-original",
-  "path": "titulo-original",
-  "id": "id-do-dominio"
+  "name": "Original Title",
+  "slug": "original-title",
+  "path": "original-title",
+  "id": "domain-id"
 }
 ```
 
-#### Entrada de Arquivo (Documento)
+#### File Entry (Document)
 ```json
 {
   "type": "file",
-  "name": "Título Original do Documento",
-  "slug": "titulo-original-do-documento",
-  "path": "slug-do-dominio/titulo-original-do-documento.md",
-  "id": "id-do-kb",
-  "domainId": "id-do-dominio-pai",
-  "orgId": "id-da-organizacao",
+  "name": "Original Document Title",
+  "slug": "original-document-title",
+  "path": "domain-slug/original-document-title.md",
+  "id": "kb-id",
+  "domainId": "parent-domain-id",
+  "orgId": "organization-id",
   "contentLength": 1234,
   "contentHash": "sha256-checksum"
 }
@@ -114,15 +114,15 @@ O JSON deve ser um **array de objetos** seguindo rigorosamente estes formatos:
 
 ---
 
-## 7. VALIDAÇÃO — Checklist Mental
+## 7. VALIDATION — Mental Checklist
 
-Antes de finalizar qualquer resposta que envolva código, pergunte-se:
+Before finalizing any response involving code, ask yourself:
 
-- [ ] Criei ou modifiquei um arquivo? → Wiki precisa saber.
-- [ ] Conectei a uma API externa? → Wiki precisa documentar.
-- [ ] Alterei fluxo de login/sessão? → Wiki MUST refletir.
-- [ ] Criei uma nova página/rota? → `summary.json` precisa do registro de roteamento seguindo o **padrão rígido**.
-- [ ] Tomei uma decisão técnica (lib X vs Y, abordagem A vs B)? → Wiki precisa da justificativa.
-- [ ] Adicionei/alterei uma variável de ambiente? → Wiki precisa do registro.
+- [ ] Did I create or modify a file? → Wiki needs to know.
+- [ ] Did I connect to an external API? → Wiki needs to document it.
+- [ ] Did I alter the login/session flow? → Wiki MUST reflect it.
+- [ ] Did I create a new page/route? → `summary.json` needs the routing record following the **strict pattern**.
+- [ ] Did I make a technical decision (lib X vs Y, approach A vs B)? → Wiki needs the justification.
+- [ ] Did I add/alter an environment variable? → Wiki needs the record.
 
-Se qualquer checkbox for `true` e o wiki não foi atualizado, **a tarefa NÃO está completa**.
+If any checkbox is `true` and the wiki was not updated, **the task is NOT complete**.

@@ -31,9 +31,9 @@ priority: MANDATORY
 | Property | Requirement |
 |----------|-------------|
 | **Base Directory** | `/.sauron/wiki/` |
-| **Root Routing File** | `summary.json` (dentro de `/.sauron/wiki/`) |
-| **Subdirectories** | `knowledge/`, `modules/`, `manuals/`, `standards/`, `history/` (pastas físicas obrigatórias para os domínios no Sauron) |
-| **Naming Pattern** | `{name}.md` (sem prefixos se já estiverem dentro das subpastas físicas de domínio) |
+| **Root Routing File** | `summary.json` (inside `/.sauron/wiki/`) |
+| **Subdirectories** | `knowledge/`, `modules/`, `manuals/`, `standards/`, `history/` (mandatory physical folders for domains in Sauron) |
+| **Naming Pattern** | `{name}.md` (no prefixes if they are already inside physical domain subfolders) |
 | **Examples** | `knowledge/architecture.md`, `modules/checkout.md`, `manuals/upholstery.md` |
 
 ---
@@ -41,25 +41,25 @@ priority: MANDATORY
 ## 3. Reference Templates
 
 ### 3.1 Root Routing File (`summary.json`)
-O arquivo `summary.json` é o mapa de metadados que vincula os arquivos locais ao servidor. Ele segue um **padrão rígido** (ver Seção 6 da `memory.md`).
+The `summary.json` file is the metadata map that links local files to the server. It follows a **strict pattern** (see Section 6 of `memory.md`).
 
 ```json
 [
   {
     "type": "folder",
-    "name": "Título Original",
-    "slug": "titulo-original",
-    "path": "titulo-original",
-    "id": "UUID-ou-ID"
+    "name": "Original Title",
+    "slug": "original-title",
+    "path": "original-title",
+    "id": "UUID-or-ID"
   },
   {
     "type": "file",
-    "name": "Título Original",
-    "slug": "titulo-original",
-    "path": "slug-do-dominio/titulo-original.md",
-    "id": "UUID-ou-ID",
-    "domainId": "ID-do-pai",
-    "orgId": "ID-da-organizacao",
+    "name": "Original Title",
+    "slug": "original-title",
+    "path": "domain-slug/original-title.md",
+    "id": "UUID-or-ID",
+    "domainId": "parent-ID",
+    "orgId": "organization-ID",
     "contentLength": 1234,
     "contentHash": "sha256-checksum"
   }
