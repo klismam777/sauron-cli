@@ -24,8 +24,10 @@ npx sauron-cli init
 
 ### `sauron init`
 
-Inicializa o Sauron Memory System no projeto atual.
-Ele executa um onboarding interativo que coleta as tecnologias do seu projeto para gerar um manifesto dinâmico (`AGENTS.md`) e injeta as regras específicas de acordo com os adaptadores de IAs configurados (Cursor AI `.mdc`, Windsurf Cascade `.windsurfrules`, Aider `.aider.instructions.md`, Antigravity).
+Inicializa o Sauron Memory System no projeto atual de forma inteligente.
+O comando executa uma **varredura heurística não-bloqueante** ($O(1)$) na raiz do repositório para detectar de forma autônoma a linguagem primária, frameworks, bancos de dados, gerenciadores de pacotes e ferramentas de IA ativas (Cursor, Windsurf, Aider, Antigravity).
+
+Durante o onboarding interativo, as perguntas são pré-populadas de forma inteligente com as informações detectadas. Ao concluir, o Sauron realiza a **injeção automática de receitas de Wiki** (Wiki Recipes) personalizadas para a sua stack tecnológica em `.sauron/wiki/standards/` (ex. TypeScript, Next.js, React, Tailwind CSS, PostgreSQL) de forma idempotente e não-destrutiva, gerando o manifesto dinâmico `AGENTS.md` e as regras de governança locais das IAs.
 
 ```bash
 # Inicialização interativa padrão
