@@ -12,6 +12,8 @@ Assistentes de código são incrivelmente poderosos, mas sofrem de amnésia vol�
 
 O Sauron resolve isso ejetando pastas estruturadas (`.sauron` e `.agents`) no seu repositório local. A partir desse momento, as IAs são condicionadas a documentar regras passivamente de acordo com os templates gerados, preservando o **Single Source of Truth** do seu produto.
 
+> **Arquitetura Linguística Híbrida:** Para maximizar a capacidade de raciocínio lógico (reasoning) das LLMs e otimizar o consumo de tokens na sua IDE, os templates de governança da IA gerados (ex: `memory.md`, `AGENTS.md`) são escritos em **Inglês Corporativo Técnico**, enquanto a interface no terminal com o desenvolvedor permanece em Português do Brasil.
+
 ## Instalação
 
 Para inicializar o Sauron CLI no seu projeto, basta rodar o comando abaixo no terminal da raiz do seu projeto (não é necessário instalar nada globalmente):
@@ -28,6 +30,12 @@ Inicializa o Sauron Memory System no projeto atual de forma inteligente.
 O comando executa uma **varredura heurística não-bloqueante** ($O(1)$) na raiz do repositório para detectar de forma autônoma a linguagem primária, frameworks, bancos de dados, gerenciadores de pacotes e ferramentas de IA ativas (Cursor, Windsurf, Aider, Antigravity).
 
 Durante o onboarding interativo, as perguntas são pré-populadas de forma inteligente com as informações detectadas. Ao concluir, o Sauron realiza a **injeção automática de receitas de Wiki** (Wiki Recipes) personalizadas para a sua stack tecnológica em `.sauron/wiki/standards/` (ex. TypeScript, Next.js, React, Tailwind CSS, PostgreSQL) de forma idempotente e não-destrutiva, gerando o manifesto dinâmico `AGENTS.md` e as regras de governança locais das IAs.
+
+### Atualizações Inteligentes (Bypass & Reidratação)
+O comando é totalmente **Idempotente**. Se executado em um repositório já inicializado:
+- **Fast-Track (Bypass)**: O CLI detecta a configuração passada e oferece a opção de pular o onboarding, atualizando os agentes internos silenciosamente.
+- **Reidratação Interativa**: Caso você queira alterar a configuração, os formulários do terminal são reidratados com o seu último estado configurado, poupando a necessidade de redigitar contextos complexos.
+- **Wiki Protection**: Um filtro cirúrgico é ativado no motor de cópia da CLI, tornando a sua Base de Conhecimento em `.sauron/wiki/` 100% blindada contra *overwrites* acidentais durante a atualização.
 
 ```bash
 # Inicialização interativa padrão
