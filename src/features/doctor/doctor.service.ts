@@ -140,7 +140,9 @@ export class DoctorService {
     }
 
     // 4. Valida se os adaptadores de IAs configuradas estão presentes e ativos
-    const targets = registered?.aiTargets || ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
+    const targets = manifest?.config?.aiTargets
+      || registered?.aiTargets
+      || ['Cursor', 'Windsurf', 'Aider', 'Antigravity', 'Codex', 'Opencode', 'Claude'];
     for (const target of targets) {
       try {
         const adapters = AdapterRegistry.resolve([target]);

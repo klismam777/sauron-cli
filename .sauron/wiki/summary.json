@@ -47,6 +47,17 @@
     "id": "domain-knowledge"
   },
   {
+    "type": "file",
+    "name": "Sauron CLI Framework Overview",
+    "slug": "framework-overview",
+    "path": "knowledge/framework-overview.md",
+    "id": "kb-knowledge-framework-overview",
+    "domainId": "domain-knowledge",
+    "orgId": "org-sauron-cli",
+    "contentLength": 13370,
+    "contentHash": "ffdcd01de70c64924b380f3aaab92ddff896647a03b41fbfeb72d5fa768298eb"
+  },
+  {
     "type": "folder",
     "name": "Manuals",
     "slug": "manuals",

@@ -12,6 +12,16 @@ Assistentes de código são incrivelmente poderosos, mas sofrem de amnésia vol�
 
 O Sauron resolve isso ejetando pastas estruturadas (`.sauron` e `.agents`) no seu repositório local. A partir desse momento, as IAs são condicionadas a documentar regras passivamente de acordo com os templates gerados, preservando o **Single Source of Truth** do seu produto.
 
+## Destaques da versão 1.4.7
+
+A versão `1.4.7` aprimora a instalação passiva do Sauron para garantir que reinstalações e atualizações não dupliquem blocos de governança nos arquivos dos agentes.
+
+- **Injeção de memória idempotente**: o `init` agora usa o template canônico `templates/.agents/rules/memory.md` como fonte limpa para os adaptadores, evitando aninhamento repetido de `SAURON START/END`.
+- **Mais agentes detectados automaticamente**: o scanner agora reconhece Codex, Opencode e Claude Code, além de Cursor, Windsurf, Aider e Antigravity.
+- **Marcadores de stack aninhados**: assinaturas como `prisma/schema.prisma` agora podem ser detectadas mesmo quando o arquivo marcador está dentro de subpastas conhecidas.
+- **Auditoria mais fiel ao projeto**: o `doctor` prioriza os targets definidos no manifesto local antes do registro global da máquina.
+- **Versão sincronizada**: `sauron --version` passa a ler a versão diretamente do `package.json`.
+
 
 ## Instalação
 
@@ -35,6 +45,7 @@ O comando é totalmente **Idempotente**. Se executado em um repositório já ini
 - **Fast-Track (Bypass)**: O CLI detecta a configuração passada e oferece a opção de pular o onboarding, atualizando os agentes internos silenciosamente.
 - **Reidratação Interativa**: Caso você queira alterar a configuração, os formulários do terminal são reidratados com o seu último estado configurado, poupando a necessidade de redigitar contextos complexos.
 - **Wiki Protection**: Um filtro cirúrgico é ativado no motor de cópia da CLI, tornando a sua Base de Conhecimento em `.sauron/wiki/` 100% blindada contra *overwrites* acidentais durante a atualização.
+- **Canonical Memory Payload**: Os arquivos específicos de agentes são regenerados a partir de uma fonte limpa de template, preservando a fluidez da governança passiva sem acumular wrappers de instalações anteriores.
 
 ### Como Atualizar um Projeto Existente
 Para trazer as regras e inteligências mais recentes para o seu repositório sem perder o seu contexto salvo, basta rodar o `init` forçando a versão `@latest` do NPM:

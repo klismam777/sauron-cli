@@ -56,22 +56,17 @@ export class ProjectScanner {
       }
 
       // 4. Detecção das IDEs / IAs no Workspace local
-      if (rootDirs.includes('.cursor') || rootFiles.includes('.cursorrules')) {
-        context.detectedIAs.push('Cursor');
-      }
-      if (rootFiles.includes('.windsurfrules')) {
-        context.detectedIAs.push('Windsurf');
-      }
-      if (rootFiles.includes('.aider.instructions.md') || rootFiles.includes('.aider.conf.yml')) {
-        context.detectedIAs.push('Aider');
-      }
-      if (rootDirs.includes('.agents')) {
-        context.detectedIAs.push('Antigravity');
-      }
+      this.addDetectedIA(context, rootDirs.includes('.cursor') || rootFiles.includes('.cursorrules'), 'Cursor');
+      this.addDetectedIA(context, rootDirs.includes('.windsurf') || rootFiles.includes('.windsurfrules'), 'Windsurf');
+      this.addDetectedIA(context, rootFiles.includes('.aider.instructions.md') || rootFiles.includes('.aider.conf.yml'), 'Aider');
+      this.addDetectedIA(context, rootDirs.includes('.agents'), 'Antigravity');
+      this.addDetectedIA(context, rootDirs.includes('.codex'), 'Codex');
+      this.addDetectedIA(context, rootDirs.includes('.opencode') || rootFiles.includes('opencode.json'), 'Opencode');
+      this.addDetectedIA(context, rootDirs.includes('.claude') || rootFiles.includes('CLAUDE.md'), 'Claude');
       
       // Fallback: se nenhuma IA for detectada de antemão, sugere todas
       if (context.detectedIAs.length === 0) {
-        context.detectedIAs = ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
+        context.detectedIAs = ['Cursor', 'Windsurf', 'Aider', 'Antigravity', 'Codex', 'Opencode', 'Claude'];
       }
 
       // 5. Analisa dependências do package.json se existir
@@ -94,8 +89,13 @@ export class ProjectScanner {
           }
 
           // Valida por arquivos físicos
-          if (sig.files && sig.files.some((f) => rootFiles.includes(f) || rootDirs.includes(f))) {
-            matched = true;
+          if (sig.files) {
+            for (const marker of sig.files) {
+              if (await this.matchesFileMarker(marker, rootFiles, rootDirs)) {
+                matched = true;
+                break;
+              }
+            }
           }
 
           if (matched) {
@@ -145,5 +145,23 @@ export class ProjectScanner {
     if (sig.wikiTemplate && !context.wikiTemplatesToInject.includes(sig.wikiTemplate)) {
       context.wikiTemplatesToInject.push(sig.wikiTemplate);
     }
+  }
+
+  private addDetectedIA(context: ProjectContextInfo, condition: boolean, name: string): void {
+    if (condition && !context.detectedIAs.includes(name)) {
+      context.detectedIAs.push(name);
+    }
+  }
+
+  private async matchesFileMarker(
+    marker: string,
+    rootFiles: string[],
+    rootDirs: string[]
+  ): Promise<boolean> {
+    if (!marker.includes('/') && !marker.includes('\\')) {
+      return rootFiles.includes(marker) || rootDirs.includes(marker);
+    }
+
+    return fs.pathExists(path.join(this.cwd, marker));
   }
 }

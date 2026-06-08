@@ -9,6 +9,8 @@ import { AdapterRegistry } from '../../core/adapters/index.js';
 import { IMemoryPayload } from '../../core/interfaces/IAgentAdapter.js';
 import { WikiBootstrapper } from '../../core/wiki/wiki-bootstrapper.js';
 
+const ADAPTER_OWNED_TEMPLATE_FILES = new Set(['.agents/rules/memory.md']);
+
 export interface InitOptions {
   aiTargets: string[];
   severity: string;
@@ -17,6 +19,41 @@ export interface InitOptions {
   cwd: string;
   templatesDir: string;
   wikiTemplatesToInject: string[];
+}
+
+function stripLeadingFrontmatter(content: string): string {
+  let normalized = content.trimStart();
+  let previous = '';
+
+  while (normalized !== previous) {
+    previous = normalized;
+    normalized = normalized
+      .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/, '')
+      .trimStart();
+  }
+
+  return normalized;
+}
+
+function normalizeMemoryRules(content: string): string {
+  const withoutMarkers = content
+    .replace(/^\s*# SAURON START\s*$/gm, '')
+    .replace(/^\s*# SAURON END\s*$/gm, '');
+
+  const normalized = stripLeadingFrontmatter(withoutMarkers).trim();
+  return normalized ? `${normalized}\n` : '';
+}
+
+async function loadCanonicalMemoryRules(
+  templatesDir: string,
+  fallbackContent: string
+): Promise<string> {
+  const templateMemoryPath = path.join(templatesDir, '.agents', 'rules', 'memory.md');
+  const rawContent = (await fs.pathExists(templateMemoryPath))
+    ? await fs.readFile(templateMemoryPath, 'utf8')
+    : fallbackContent;
+
+  return normalizeMemoryRules(rawContent) || `${fallbackContent.trim()}\n`;
 }
 
 export class InitService {
@@ -30,7 +67,6 @@ export class InitService {
     const manifest = (await getManifest(cwd)) || { version: '1.0.0', files: {} };
     const modifiedFiles: string[] = [];
 
-    // Função interna para copiar diretórios recursivamente utilizando o PresentationDriver
     const processDirectory = async (source: string, target: string) => {
       if (!(await fs.pathExists(source))) return;
 
@@ -43,20 +79,23 @@ export class InitService {
         if (stat.isDirectory()) {
           const relativeToTarget = path.relative(cwd, targetPath).replace(/\\/g, '/');
           if (relativeToTarget === '.sauron/wiki' && await fs.pathExists(targetPath)) {
-            continue; // Proteção da Base de Conhecimento (Wiki) durante atualizações
+            continue;
           }
           await fs.ensureDir(targetPath);
           await processDirectory(sourcePath, targetPath);
         } else {
-          const content = await fs.readFile(sourcePath, 'utf8');
           const relPath = path.relative(cwd, targetPath).replace(/\\/g, '/');
+          if (ADAPTER_OWNED_TEMPLATE_FILES.has(relPath)) {
+            continue;
+          }
 
+          const content = await fs.readFile(sourcePath, 'utf8');
           let shouldWrite = true;
 
           if (await fs.pathExists(targetPath)) {
             const localContent = await fs.readFile(targetPath, 'utf8');
             const hasConflict = checkConflict(localContent, content, manifest.files[relPath]);
-            
+
             if (hasConflict) {
               const decision = await driver.resolveConflict(relPath, localContent, content);
               if (decision === 'ours') {
@@ -72,7 +111,7 @@ export class InitService {
             modifiedFiles.push(relPath);
           }
 
-          const isMutable = relPath.startsWith('.sauron/wiki/') || relPath === '.agents/rules/memory.md';
+          const isMutable = relPath.startsWith('.sauron/wiki/');
           if (!isMutable) {
             manifest.files[relPath] = generateHash(content);
           }
@@ -80,11 +119,9 @@ export class InitService {
       }
     };
 
-    // 1. Processa diretórios bases ocultos de templates
     await processDirectory(path.join(templatesDir, '.sauron'), path.join(cwd, '.sauron'));
     await processDirectory(path.join(templatesDir, '.agents'), path.join(cwd, '.agents'));
 
-    // 2. Processa o arquivo global AGENTS.md
     const agentsMdPath = path.join(cwd, 'AGENTS.md');
     const agentsMdContent = generateAgentsMarkdown(
       options.aiTargets,
@@ -97,7 +134,7 @@ export class InitService {
     if (await fs.pathExists(agentsMdPath)) {
       const localAgents = await fs.readFile(agentsMdPath, 'utf8');
       const hasConflict = checkConflict(localAgents, agentsMdContent, manifest.files['AGENTS.md']);
-      
+
       if (hasConflict) {
         const decision = await driver.resolveConflict('AGENTS.md', localAgents, agentsMdContent);
         if (decision === 'ours') {
@@ -112,7 +149,6 @@ export class InitService {
     }
     manifest.files['AGENTS.md'] = generateHash(agentsMdContent);
 
-    // 3. Salva o manifesto de integridade
     manifest.config = {
       aiTargets: options.aiTargets,
       severity: options.severity,
@@ -122,23 +158,14 @@ export class InitService {
     await saveManifest(cwd, manifest);
     modifiedFiles.push('.sauron/.manifest.json');
 
-    // 4. Executa adaptadores de agentes específicos para as IAs alvo selecionadas
-    const memoryFilePath = path.join(cwd, '.agents', 'rules', 'memory.md');
-    let memoryRulesContent = '';
-    if (await fs.pathExists(memoryFilePath)) {
-      memoryRulesContent = await fs.readFile(memoryFilePath, 'utf8');
-    } else {
-      // Se por algum motivo o arquivo de templates base não existir, tenta o template estático
-      memoryRulesContent = agentsMdContent;
-    }
-
+    const memoryRulesContent = await loadCanonicalMemoryRules(templatesDir, agentsMdContent);
     const projectName = path.basename(cwd) || 'Unnamed Project';
 
     const memoryPayload: IMemoryPayload = {
       projectName,
       globalRules: memoryRulesContent,
-      ruleScope: "**/*.{ts,js,tsx,jsx}",
-      fallbackReference: "AGENTS.md"
+      ruleScope: '**/*.{ts,js,tsx,jsx}',
+      fallbackReference: 'AGENTS.md',
     };
 
     try {
@@ -151,7 +178,6 @@ export class InitService {
       throw new Error(`Erro ao orquestrar adaptadores: ${error.message}`);
     }
 
-    // 5. Executa a injeção condicional de receitas na wiki do projeto
     const bootstrapper = new WikiBootstrapper(cwd);
     const injectedWikiFiles = await bootstrapper.bootstrapFromTemplates(
       templatesDir,
@@ -159,7 +185,6 @@ export class InitService {
     );
     modifiedFiles.push(...injectedWikiFiles);
 
-    // 6. Cadastra o workspace no Global Registry centralizado da máquina
     await this.registryService.registerWorkspace(
       projectName,
       cwd,

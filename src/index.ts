@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
+import { createRequire } from 'node:module';
 import { runInitCommand } from './features/init/init.command.js';
 import { runDoctorCommand } from './features/doctor/doctor.command.js';
 import { runUninstallCommand } from './features/uninstall/uninstall.command.js';
 
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json') as { version?: string };
 const program = new Command();
 
 program
   .name('sauron')
   .description('Sauron CLI - Framework para resolução de Amnésia de Contexto em IAs')
-  .version('1.2.0');
+  .version(pkg.version || '0.0.0');
 
 program
   .command('init')
