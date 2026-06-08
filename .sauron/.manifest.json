@@ -1,7 +1,17 @@
 {
   "version": "1.0.0",
   "files": {
-    ".agents/skills/wiki/SKILL.md": "8ce35d3ee8294f0883bb54e81d12948f6a4adc9fbde87c92cec91e58e9dd9a73",
-    "AGENTS.md": "c9a63ca8bdd74bf396ad713d79fc21ab075d0c7051ec51ffdcc0cfd9a85777ee"
+    ".agents/skills/wiki/SKILL.md": "7cec77a38a7fa086d25492125620bdaf6ce1b5d0a19d0d0e26f8f07130f42892",
+    "AGENTS.md": "8e368ea6ac1c51a878aa53b5b8211fa6bdec82be3177cd4f26843bdf28544f31"
+  },
+  "config": {
+    "aiTargets": [
+      "Antigravity",
+      "Codex",
+      "Opencode"
+    ],
+    "severity": "Observacional",
+    "projectContext": "O Sauron CLI é uma ferramenta de infraestrutura agnóstica para orquestração de contexto de Inteligências Artificiais. Ele atua como um \"Cérebro\" injetável em repositórios, forçando as IAs (Cursor, Windsurf, Aider, Codex, Opencode, Claude) a documentarem arquiteturas e regras de negócio através de um \"Write Obligation\" rigoroso. Foi construído em TypeScript, empacotado pelo tsup, e utiliza uma arquitetura baseada no Padrão de Registro de Adaptadores para gerenciar nativamente o isolamento e injeção de sandboxes locais para cada inteligência artificial no ambiente de desenvolvimento.",
+    "projectStack": "TypeScript"
   }
 }

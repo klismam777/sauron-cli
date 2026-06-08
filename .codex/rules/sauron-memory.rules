@@ -1,8 +1,9 @@
----
-trigger: always_on
----
-
-# SAURON START
+prompt: true
+allow:
+  - read: .sauron/wiki/**
+  - read: AGENTS.md
+  
+# Sauron Central Governance Policy
 ---
 trigger: always_on
 ---
@@ -160,4 +161,3 @@ Se qualquer checkbox for `true` e o wiki não foi atualizado, **a tarefa NÃO es
 
 # SAURON END
 
-# SAURON END
