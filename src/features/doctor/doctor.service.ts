@@ -2,7 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { getManifest, generateHash } from '../../core/manifest.service.js';
 import { RegistryService } from '../../core/registry/registry.service.js';
-import { AdapterFactory } from '../../core/adapters/adapter.factory.js';
+import { AdapterRegistry } from '../../core/adapters/index.js';
 
 export interface DoctorIssue {
   severity: 'error' | 'warning';
@@ -142,41 +142,43 @@ export class DoctorService {
     // 4. Valida se os adaptadores de IAs configuradas estão presentes e ativos
     const targets = registered?.aiTargets || ['Cursor', 'Windsurf', 'Aider', 'Antigravity'];
     for (const target of targets) {
-      const adapter = AdapterFactory.getAdapter(target);
-      if (adapter) {
-        // Para validar integridade, podemos verificar se as rotas dos arquivos existem
-        // e se o conteúdo possui as marcações "# SAURON START" / "# SAURON END"
-        const rulesFileMap: Record<string, string> = {
-          'Cursor': '.cursor/rules/sauron-memory.mdc',
-          'Windsurf': '.windsurfrules',
-          'Aider': '.aider.instructions.md',
-          'Antigravity': '.agents/rules/memory.md',
-        };
+      try {
+        const adapters = AdapterRegistry.resolve([target]);
+        if (adapters.length > 0) {
+          const rulesFileMap: Record<string, string> = {
+            'cursor': '.cursor/rules/sauron-memory.mdc',
+            'windsurf': '.windsurf/rules/sauron-memory.md',
+            'aider': '.sauron-aider-instructions.md',
+            'antigravity': '.agents/rules/memory.md',
+            'opencode': '.opencode/instructions/sauron-memory.md',
+            'codex': '.codex/rules/sauron-memory.rules',
+            'claude': '.claude/rules/sauron-base.md'
+          };
 
-        const relPath = rulesFileMap[target];
-        if (relPath) {
-          const fullPath = path.join(cwd, relPath);
-          if (!(await fs.pathExists(fullPath))) {
-            issues.push({
-              severity: 'error',
-              message: `Configuração do agente ${target} está ausente ou foi deletada: ${relPath}`,
-              fix: `Rode sauron init para reinjetar a integração com o ${target}.`,
-            });
-          } else {
-            const rulesContent = await fs.readFile(fullPath, 'utf8');
-            const hasStart = rulesContent.includes('# SAURON START');
-            const hasEnd = rulesContent.includes('# SAURON END');
-
-            if (!hasStart || !hasEnd) {
+          const relPath = rulesFileMap[target.toLowerCase().trim()];
+          if (relPath) {
+            const fullPath = path.join(cwd, relPath);
+            if (!(await fs.pathExists(fullPath))) {
               issues.push({
                 severity: 'error',
-                message: `Bloco de governança do Sauron foi violado ou removido em: ${relPath}`,
-                file: relPath,
-                fix: `Rode sauron init para restaurar as diretrizes de compliance no arquivo do agente.`,
+                message: `Configuração do agente ${target} está ausente ou foi deletada: ${relPath}`,
+                fix: `Rode sauron init para reinjetar a integração com o ${target}.`,
               });
+            } else {
+              const rulesContent = await fs.readFile(fullPath, 'utf8');
+              if (rulesContent.trim().length === 0) {
+                issues.push({
+                  severity: 'error',
+                  message: `Arquivo de governança do Sauron está vazio em: ${relPath}`,
+                  file: relPath,
+                  fix: `Rode sauron init para restaurar as diretrizes de compliance no arquivo do agente.`,
+                });
+              }
             }
           }
         }
+      } catch (e) {
+        // Adaptador não suportado/registrado, ignora na checagem
       }
     }
 

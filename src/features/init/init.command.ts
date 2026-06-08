@@ -135,6 +135,9 @@ export async function runInitCommand(options: InitCommandOptions) {
               options: [
                 { value: 'Cursor', label: 'Cursor', hint: 'Recomendado' },
                 { value: 'Windsurf', label: 'Windsurf' },
+                { value: 'Claude', label: 'Claude Code' },
+                { value: 'Codex', label: 'Codex' },
+                { value: 'Opencode', label: 'Opencode' },
                 { value: 'Aider', label: 'Aider' },
                 { value: 'Antigravity', label: 'Antigravity', hint: 'Agente nativo' },
               ],

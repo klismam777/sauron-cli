@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import { RegistryService } from '../../core/registry/registry.service.js';
-import { AdapterFactory } from '../../core/adapters/adapter.factory.js';
+import { AdapterRegistry } from '../../core/adapters/index.js';
 
 export interface UninstallOptions {
   cwd: string;
@@ -20,7 +20,7 @@ export class UninstallService {
     removedPaths.push('~/.sauron/registry.json (descadastrado)');
 
     // 2. Executa a limpeza em cada adaptador de agente conhecido
-    const adapters = AdapterFactory.getAllAdapters();
+    const adapters = AdapterRegistry.getAll();
     for (const adapter of adapters) {
       const paths = await adapter.clean(cwd);
       removedPaths.push(...paths);

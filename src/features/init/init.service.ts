@@ -5,7 +5,8 @@ import { checkConflict } from '../../core/merge.service.js';
 import { generateAgentsMarkdown } from './templates.js';
 import { PresentationDriver } from '../../domain/adapters/presentation-driver.js';
 import { RegistryService } from '../../core/registry/registry.service.js';
-import { AdapterFactory } from '../../core/adapters/adapter.factory.js';
+import { AdapterRegistry } from '../../core/adapters/index.js';
+import { IMemoryPayload } from '../../core/interfaces/IAgentAdapter.js';
 import { WikiBootstrapper } from '../../core/wiki/wiki-bootstrapper.js';
 
 export interface InitOptions {
@@ -131,12 +132,23 @@ export class InitService {
       memoryRulesContent = agentsMdContent;
     }
 
-    for (const target of options.aiTargets) {
-      const adapter = AdapterFactory.getAdapter(target);
-      if (adapter) {
-        const paths = await adapter.inject(cwd, memoryRulesContent);
+    const projectName = path.basename(cwd) || 'Unnamed Project';
+
+    const memoryPayload: IMemoryPayload = {
+      projectName,
+      globalRules: memoryRulesContent,
+      ruleScope: "**/*.{ts,js,tsx,jsx}",
+      fallbackReference: "AGENTS.md"
+    };
+
+    try {
+      const adapters = AdapterRegistry.resolve(options.aiTargets);
+      for (const adapter of adapters) {
+        const paths = await adapter.inject(memoryPayload, cwd);
         modifiedFiles.push(...paths);
       }
+    } catch (error: any) {
+      throw new Error(`Erro ao orquestrar adaptadores: ${error.message}`);
     }
 
     // 5. Executa a injeção condicional de receitas na wiki do projeto
@@ -148,7 +160,6 @@ export class InitService {
     modifiedFiles.push(...injectedWikiFiles);
 
     // 6. Cadastra o workspace no Global Registry centralizado da máquina
-    const projectName = path.basename(cwd) || 'Unnamed Project';
     await this.registryService.registerWorkspace(
       projectName,
       cwd,

@@ -1,6 +1,6 @@
 {
   "name": "sauron-cli",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "",
   "main": "dist/index.js",
   "bin": {
@@ -23,11 +23,13 @@
     "commander": "^15.0.0",
     "diff": "^9.0.0",
     "fs-extra": "^11.3.5",
+    "js-yaml": "^4.2.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@types/diff": "^7.0.2",
     "@types/fs-extra": "^11.0.4",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.9.2",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
