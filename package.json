@@ -1,11 +1,15 @@
 {
   "name": "sauron-cli",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "",
   "main": "dist/index.js",
   "bin": {
     "sauron": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format esm --clean",
