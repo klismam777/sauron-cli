@@ -10,7 +10,7 @@ pnpm-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
-
+.npmrc
 # Internal Planning Documents
 Taevo-PRD-1780772261443.md
 sauron_cli_implementation_plan.md
