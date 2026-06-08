@@ -5,6 +5,12 @@ import path from 'node:path';
 export interface Manifest {
   version: string;
   files: Record<string, string>;
+  config?: {
+    aiTargets: string[];
+    severity: string;
+    projectContext: string;
+    projectStack: string;
+  };
 }
 
 export function generateHash(content: string): string {

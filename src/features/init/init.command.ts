@@ -3,6 +3,7 @@ import path from 'path';
 import pc from 'picocolors';
 import { fileURLToPath } from 'url';
 import * as p from '@clack/prompts';
+import { getManifest } from '../../core/manifest.service.js';
 import { InitService } from './init.service.js';
 import { SessionContext, ConflictResolution } from '../../domain/session/session-context.js';
 import { PresentationRouter } from '../../presentation/router.js';
@@ -78,8 +79,53 @@ export async function runInitCommand(options: InitCommandOptions) {
   
   let projectStack = inferredStackString || 'Node.js, TypeScript';
 
+  // Extração de Estado e Bypass
+  let bypassOnboarding = false;
+  const manifestData = await getManifest(cwd);
+  
+  if (manifestData) {
+    if (manifestData.config) {
+      aiTargets = manifestData.config.aiTargets;
+      severity = manifestData.config.severity;
+      projectContext = manifestData.config.projectContext;
+      projectStack = manifestData.config.projectStack;
+    } else {
+      // Compatibilidade reversa: tenta extrair do AGENTS.md
+      const agentsMdPath = path.join(cwd, 'AGENTS.md');
+      if (await fs.pathExists(agentsMdPath)) {
+        const content = await fs.readFile(agentsMdPath, 'utf8');
+        const targetsMatch = content.match(/\*\*Targets:\*\* (.*)/);
+        if (targetsMatch) aiTargets = targetsMatch[1].split(',').map(s => s.trim());
+        
+        const severityMatch = content.match(/\*\*Severity:\*\* (.*)/);
+        if (severityMatch) severity = severityMatch[1].trim();
+        
+        const contextMatch = content.match(/## Project Context\n([\s\S]*?)\n## Tech Stack/);
+        if (contextMatch) projectContext = contextMatch[1].trim();
+        
+        const stackMatch = content.match(/## Tech Stack\n([\s\S]*?)\n## Golden Rule/);
+        if (stackMatch) projectStack = stackMatch[1].trim();
+      }
+    }
+    
+    // Pergunta de bypass apenas se o ambiente for interativo
+    if (session.interactive) {
+       const bypass = await p.confirm({
+         message: 'Detectamos uma instalação anterior. Deseja manter as configurações atuais e pular o onboarding?',
+         initialValue: true
+       });
+       
+       if (p.isCancel(bypass)) {
+         p.cancel('Inicialização abortada.');
+         process.exit(0);
+       }
+       
+       bypassOnboarding = bypass as boolean;
+    }
+  }
+
   // Executa onboarding interativo de perguntas se permitido pela sessão
-  if (session.interactive) {
+  if (session.interactive && !bypassOnboarding) {
     try {
       const config = await p.group(
         {

@@ -40,6 +40,10 @@ export class InitService {
         const stat = await fs.stat(sourcePath);
 
         if (stat.isDirectory()) {
+          const relativeToTarget = path.relative(cwd, targetPath).replace(/\\/g, '/');
+          if (relativeToTarget === '.sauron/wiki' && await fs.pathExists(targetPath)) {
+            continue; // Proteção da Base de Conhecimento (Wiki) durante atualizações
+          }
           await fs.ensureDir(targetPath);
           await processDirectory(sourcePath, targetPath);
         } else {
@@ -108,6 +112,12 @@ export class InitService {
     manifest.files['AGENTS.md'] = generateHash(agentsMdContent);
 
     // 3. Salva o manifesto de integridade
+    manifest.config = {
+      aiTargets: options.aiTargets,
+      severity: options.severity,
+      projectContext: options.projectContext,
+      projectStack: options.projectStack,
+    };
     await saveManifest(cwd, manifest);
     modifiedFiles.push('.sauron/.manifest.json');
 
