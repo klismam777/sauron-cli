@@ -1,10 +1,10 @@
 {
   "name": "sauron-cli",
-  "version": "1.4.3",
+  "version": "1.4.6",
   "description": "",
   "main": "dist/index.js",
   "bin": {
-    "sauron": "./dist/index.js"
+    "sauron": "dist/index.js"
   },
   "files": [
     "dist",

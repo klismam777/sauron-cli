@@ -2,7 +2,7 @@
 
 > O "Lobo Frontal" dos assistentes de código de IA. Resolva a amnésia de contexto de uma vez por todas.
 
-O **Sauron CLI** é uma infraestrutura passiva de orquestração de contexto para IAs. Ele injeta um "Cérebro" estruturado nos seus repositórios, forçando as Inteligências Artificiais (como Cursor, Windsurf e Aider) a respeitarem um conceito de **"Write Obligation" (Obrigação de Escrita)**. Em vez de apenas ler código, a IA passará a documentar decisões de negócio e arquitetura continuamente, garantindo que o seu projeto não quebre após meses sem ser tocado.
+O **Sauron CLI** é uma infraestrutura passiva de orquestração de contexto para IAs. Ele injeta um "Cérebro" estruturado nos seus repositórios, forçando as Inteligências Artificiais (como Cursor, Windsurf, Aider, Claude Code, Codex e Opencode) a respeitarem um conceito de **"Write Obligation" (Obrigação de Escrita)**. Em vez de apenas ler código, a IA passará a documentar decisões de negócio e arquitetura continuamente, garantindo que o seu projeto não quebre após meses sem ser tocado.
 
 ## O Problema
 
@@ -26,7 +26,7 @@ npx sauron-cli init
 ### `sauron init`
 
 Inicializa o Sauron Memory System no projeto atual de forma inteligente.
-O comando executa uma **varredura heurística não-bloqueante** ($O(1)$) na raiz do repositório para detectar de forma autônoma a linguagem primária, frameworks, bancos de dados, gerenciadores de pacotes e ferramentas de IA ativas (Cursor, Windsurf, Aider, Antigravity).
+O comando executa uma **varredura heurística não-bloqueante** ($O(1)$) na raiz do repositório para detectar de forma autônoma a linguagem primária, frameworks, bancos de dados, gerenciadores de pacotes e ferramentas de IA ativas (Cursor, Windsurf, Aider, Antigravity, Claude Code, Codex, Opencode).
 
 Durante o onboarding interativo, as perguntas são pré-populadas de forma inteligente com as informações detectadas. Ao concluir, o Sauron realiza a **injeção automática de receitas de Wiki** (Wiki Recipes) personalizadas para a sua stack tecnológica em `.sauron/wiki/standards/` (ex. TypeScript, Next.js, React, Tailwind CSS, PostgreSQL) de forma idempotente e não-destrutiva, gerando o manifesto dinâmico `AGENTS.md` e as regras de governança locais das IAs.
 
