@@ -12,7 +12,6 @@ Assistentes de código são incrivelmente poderosos, mas sofrem de amnésia vol�
 
 O Sauron resolve isso ejetando pastas estruturadas (`.sauron` e `.agents`) no seu repositório local. A partir desse momento, as IAs são condicionadas a documentar regras passivamente de acordo com os templates gerados, preservando o **Single Source of Truth** do seu produto.
 
-> **Arquitetura Linguística Híbrida:** Para maximizar a capacidade de raciocínio lógico (reasoning) das LLMs e otimizar o consumo de tokens na sua IDE, os templates de governança da IA gerados (ex: `memory.md`, `AGENTS.md`) são escritos em **Inglês Corporativo Técnico**, enquanto a interface no terminal com o desenvolvedor permanece em Português do Brasil.
 
 ## Instalação
 
@@ -36,6 +35,15 @@ O comando é totalmente **Idempotente**. Se executado em um repositório já ini
 - **Fast-Track (Bypass)**: O CLI detecta a configuração passada e oferece a opção de pular o onboarding, atualizando os agentes internos silenciosamente.
 - **Reidratação Interativa**: Caso você queira alterar a configuração, os formulários do terminal são reidratados com o seu último estado configurado, poupando a necessidade de redigitar contextos complexos.
 - **Wiki Protection**: Um filtro cirúrgico é ativado no motor de cópia da CLI, tornando a sua Base de Conhecimento em `.sauron/wiki/` 100% blindada contra *overwrites* acidentais durante a atualização.
+
+### Como Atualizar um Projeto Existente
+Para trazer as regras e inteligências mais recentes para o seu repositório sem perder o seu contexto salvo, basta rodar o `init` forçando a versão `@latest` do NPM:
+
+```bash
+npx sauron-cli@latest init
+```
+
+### Comandos da CLI
 
 ```bash
 # Inicialização interativa padrão
